@@ -24,6 +24,7 @@ import subprocess
 from glob import glob
 import tempfile
 import sys
+import base64
 
 sys.setrecursionlimit(2000)
 
@@ -438,7 +439,7 @@ class RSAAttack(object):
             for attack in self.implemented_attacks:
                 if self.args.attack is not None and self.args.attack == attack.__name__:
                     if self.args.verbose:
-                        print "[*] Performing " + attack.__name__ + " attack."
+                        print("[*] Performing " + attack.__name__ + " attack.")
                     getattr(self, attack.__name__)()
                 elif self.args.attack is None or (self.args.attack is not None and self.args.attack == "all"):
                     if self.args.verbose and "nullattack" not in attack.__name__:
@@ -507,6 +508,8 @@ if __name__ == "__main__":
     parser.add_argument('--createpub', help='Take n and e from cli and just print a public key then exit', action='store_true')
     parser.add_argument('--dumpkey', help='Just dump the RSA variables from a key - n,e,d,p,q', action='store_true')
     parser.add_argument('--uncipher', help='uncipher a file', default=None)
+    parser.add_argument('--unciphernum', help='uncipher a num', default=None)
+    parser.add_argument('--uncipherbase64', help='uncipher a base64', default=None)
     parser.add_argument('--verbose', help='verbose mode (display n, e, p and q)', action='store_true')
     parser.add_argument('--private', help='Display private key if recovered', action='store_true')
     parser.add_argument('--ecmdigits', type=int, help='Optionally an estimate as to how long one of the primes is for ECM method', default=None)
@@ -553,6 +556,16 @@ if __name__ == "__main__":
 
         if args.uncipher is not None:
             cipher = open(args.uncipher, 'rb').read().strip()
+            unciphered = priv_key.decrypt(cipher)
+            print("[+] Clear text : %s" % unciphered)
+
+        if args.unciphernum is not None:
+            cipher = n2s(long(args.unciphernum))
+            unciphered = priv_key.decrypt(cipher)
+            print("[+] Clear text : %s" % unciphered)
+
+        if args.uncipherbase64 is not None:
+            cipher =  base64.b64decode(args.unciphernum)
             unciphered = priv_key.decrypt(cipher)
             print("[+] Clear text : %s" % unciphered)
 

@@ -2,3 +2,5 @@ PyCrypto
 GMPY
 SymPy
 requests
+Cython
+babel
