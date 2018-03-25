@@ -15,6 +15,45 @@ class Rsa_Auto():
     def __init__(self):
         pass
 
+    def _ShareModulus(self):
+        n = raw_input("请输入n:")
+        e1 = raw_input("请输入e1:")
+        c1 = raw_input("请输入c1:")
+        e2 = raw_input("请输入e2:")
+        c2 = raw_input("请输入c2:")
+        n = long(n)
+        e1 = long(e1)
+        e2 = long(e2)
+        c1 = long(c1)
+        c2 = long(c2)
+
+        def egcd(a, b):
+            if a == 0:
+                return (b, 0, 1)
+            else:
+                g, y, x = egcd(b % a, a)
+                return (g, x - (b // a) * y, y)
+
+        def modinv(a, m):
+            g, x, y = egcd(a, m)
+            if g != 1:
+                raise Exception('modular inverse does not exist')
+            else:
+                return x % m
+
+        s = egcd(e1, e2)
+        s1 = s[1]
+        s2 = s[2]
+        if s1 < 0:
+            s1 = - s1
+            c1 = modinv(c1, n)
+        elif s2 < 0:
+            s2 = - s2
+            c2 = modinv(c2, n)
+        m = (pow(c1, s1, n) * pow(c2, s2, n)) % n
+        print('{:x}'.format(m).decode('hex'))
+        raw_input("执行完毕,按任意键继续...")
+
     def _e_is_65537(self):
         def gcd(a, b):
             if a < b:
@@ -73,12 +112,15 @@ class Rsa_Auto():
                     print(it['n'], ot['n'])
                     print('p:', p)
                     the_p = p
-
+                    print('the_p',p)
+        the_p = long(the_p)
         for it in sessions:
+            print(4444444,it)
             priv_key = PrivateKey(long(the_p), long(it['n']/the_p), long(it['e']), long(it['n']))
             cipher = n2s(it['c'])
             unciphered = priv_key.decrypt(cipher)
             print("[+] Clear text : %s" % unciphered)
+        raw_input("执行完毕,按任意键继续...")
 
 
 
@@ -112,6 +154,7 @@ class Rsa_Auto():
         print(n2s((-x) % n))
         print(n2s(y % n))
         print(n2s((-y) % n))
+        raw_input("执行完毕,按任意键继续...")
 
 
     def _hashad(self):
@@ -223,6 +266,7 @@ class Rsa_Auto():
         e = session['e']
         realnum = gmpy.mpz(x).root(e)[0].digits()
         print(my_parse_number(int(realnum)))
+        raw_input("执行完毕,按任意键继续...")
 
     def _brup_e(self):
         publickey = raw_input("请输入公钥的绝对路经:")
@@ -358,6 +402,7 @@ class Rsa_Auto():
 5.hashad攻击(1组me多组nc)其中e比较小,低加密指数广播攻击
 6.e=2 robin RSA
 7.hashad攻击(1组me多组nc)其中e比较大,e=65537 求公因数，公因数即为p
+8. 1组m n 2个或者多个e c ，共模攻击
 ------请选择-----
 """)
         if x == '0':
@@ -376,6 +421,8 @@ class Rsa_Auto():
             self._e_is_2()
         elif x == '7':
             self._e_is_65537()
+        elif x == '8':
+            self._ShareModulus()
         else:
             print('没有这个选项....over\n')
             raw_input("执行完毕,按任意键继续...")
